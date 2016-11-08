@@ -85,4 +85,20 @@ function startLoop(instrument, note, loopLengthSeconds) {
   setInterval(() => playSample(instrument, note), loopLengthSeconds * 1000);
 }
 
+function startDelayedLoop(instrument, note, loopLenghtSeconds, delay){
+  setTimeout(() => startLoop(instrument, note, loopLenghtSeconds), delay*1000);
+}
+
+
+
+/*
+let loopTime = 2
+startDelayedLoop('Grand Piano', 'F4',  loopTime, 0);
+startDelayedLoop('Grand Piano', 'Ab4', loopTime, 1)
+startDelayedLoop('Grand Piano', 'C5',  loopTime, 2);
+startDelayedLoop('Grand Piano', 'Db5', loopTime, 3);
+startDelayedLoop('Grand Piano', 'Eb5', loopTime, 4);
+startDelayedLoop('Grand Piano', 'F5',  loopTime, 5);
+startDelayedLoop('Grand Piano', 'Ab5', loopTime, 6);
+*/
 //startLoop('Grand Piano', 'C4', 1);
