@@ -13,6 +13,21 @@ const SAMPLE_LIBRARY = {
     { note: 'F#',  octave: 4, file: 'Samples/Grand Piano/piano-f-f#4.wav' },
     { note: 'F#',  octave: 5, file: 'Samples/Grand Piano/piano-f-f#5.wav' },
     { note: 'F#',  octave: 6, file: 'Samples/Grand Piano/piano-f-f#6.wav' }
+  ] ,
+  'Horn': [
+    { note: 'A#',  octave: 2, file: 'Samples/Horn/horn-a#2.wav' },
+    { note: 'A#',  octave: 3, file: 'Samples/Horn/horn-a#3.wav' },
+    { note: 'A#',  octave: 4, file: 'Samples/Horn/horn-a#4.wav' },
+    { note: 'C#',  octave: 3, file: 'Samples/Horn/horn-c#3.wav' },
+    { note: 'C#',  octave: 4, file: 'Samples/Horn/horn-c#4.wav' },
+    { note: 'C#',  octave: 5, file: 'Samples/Horn/horn-c#5.wav' },
+    { note: 'E',  octave: 2, file: 'Samples/Horn/horn-e2.wav' },
+    { note: 'E',  octave: 3, file: 'Samples/Horn/horn-e3.wav' },
+    { note: 'E',  octave: 4, file: 'Samples/Horn/horn-e4.wav' },
+    { note: 'E',  octave: 5, file: 'Samples/Horn/horn-e5.wav' },
+    { note: 'G',  octave: 2, file: 'Samples/Horn/horn-g2.wav' },
+    { note: 'G',  octave: 3, file: 'Samples/Horn/horn-g3.wav' },
+    { note: 'G',  octave: 4, file: 'Samples/Horn/horn-g4.wav' }
   ]
 };
 const OCTAVE = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
@@ -69,36 +84,44 @@ function getSample(instrument, noteAndOctave) {
   }));
 }
 
-function playSample(instrument, note) {
+function playSample(instrument, note, destination, delaySeconds = 0) {
   getSample(instrument, note).then(({audioBuffer, distance}) => {
     let playbackRate = Math.pow(2, distance / 12);
     let bufferSource = audioContext.createBufferSource();
+
     bufferSource.buffer = audioBuffer;
     bufferSource.playbackRate.value = playbackRate;
-    bufferSource.connect(audioContext.destination);
-    bufferSource.start();
+
+    bufferSource.connect(destination);
+    bufferSource.start(audioContext.currentTime + delaySeconds);
   });
 }
 
-function startLoop(instrument, note, loopLengthSeconds) {
-  playSample(instrument, note);
-  setInterval(() => playSample(instrument, note), loopLengthSeconds * 1000);
+function startLoop(instrument, note, destination, loopLengthSeconds, delaySeconds) {
+  playSample(instrument, note, destination, delaySeconds);
+  setInterval(() => playSample(instrument, note, destination, delaySeconds),
+   loopLengthSeconds * 1000);
 }
 
-function startDelayedLoop(instrument, note, loopLenghtSeconds, delay){
-  setTimeout(() => startLoop(instrument, note, loopLenghtSeconds), delay*1000);
-}
-
-
-
+fetchSample('AirportTerminal.wav').then(convolverBuffer => {
+  let convolver = audioContext.createConvolver();
+  convolver.buffer = convolverBuffer;
+  convolver.connect(audioContext.destination);
 /*
-let loopTime = 2
-startDelayedLoop('Grand Piano', 'F4',  loopTime, 0);
-startDelayedLoop('Grand Piano', 'Ab4', loopTime, 1)
-startDelayedLoop('Grand Piano', 'C5',  loopTime, 2);
-startDelayedLoop('Grand Piano', 'Db5', loopTime, 3);
-startDelayedLoop('Grand Piano', 'Eb5', loopTime, 4);
-startDelayedLoop('Grand Piano', 'F5',  loopTime, 5);
-startDelayedLoop('Grand Piano', 'Ab5', loopTime, 6);
-*/
-//startLoop('Grand Piano', 'C4', 1);
+  startLoop('Grand Piano', 'F4',  convolver, 19.7, 4.0);
+  startLoop('Grand Piano', 'Ab4', convolver, 17.8, 8.1);
+  startLoop('Grand Piano', 'C5',  convolver, 21.3, 5.6);
+  startLoop('Grand Piano', 'Db5', convolver, 22.1, 12.6);
+  startLoop('Grand Piano', 'Eb5', convolver, 18.4, 9.2);
+  startLoop('Grand Piano', 'F5',  convolver, 20.0, 14.1);
+  startLoop('Grand Piano', 'Ab5', convolver, 17.7, 3.1);
+  */
+  startLoop('Horn', 'F4',  convolver, 19.7, 4.0);
+  startLoop('Horn', 'Ab4', convolver, 17.8, 8.1);
+  startLoop('Horn', 'C5',  convolver, 21.3, 5.6);
+  startLoop('Horn', 'Db5', convolver, 22.1, 12.6);
+  startLoop('Horn', 'Eb5', convolver, 18.4, 9.2);
+  startLoop('Horn', 'F5',  convolver, 20.0, 14.1);
+  startLoop('Horn', 'Ab5', convolver, 17.7, 3.1);
+});
+
